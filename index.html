@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agenda-API Tester</title>
+  <style>
+    body{font-family:system-ui,sans-serif;padding:2rem;background:#fafafa}
+    h2{margin-top:2rem}
+    section{background:#fff;border-radius:12px;padding:1rem 1.5rem;box-shadow:0 2px 6px rgba(0,0,0,.08);margin-bottom:1.5rem}
+    .row{display:flex;gap:.5rem;margin-bottom:.6rem;flex-wrap:wrap}
+    input,textarea{padding:.4rem .6rem;font-family:monospace;flex:1 1 240px}
+    button{padding:.4rem .8rem;cursor:pointer}
+    pre{background:#272822;color:#eee;padding:1rem;border-radius:8px;max-height:250px;overflow:auto}
+    .highlight {background:#fffbcc;border:1px solid #ffd42a;padding:0 .3rem;border-radius:3px;font-weight:bold;}
+  </style>
+</head>
+<body>
+
+<h1>Agenda-API Tester</h1>
+
+<section>
+  <h2>Filtro por Usuário (UUID)</h2>
+  <div class="row">
+    <input id="filterUserId" placeholder="user_id (UUID) para listagens" />
+  </div>
+</section>
+
+<!-- =============== MEDICINES =============== -->
+<section>
+  <h2>Medicines</h2>
+
+  <!-- CREATE -->
+  <div class="row">
+    <textarea id="medCreateBody" rows="3" placeholder='Ex: {"medicine_name":"Paracetamol","dosage":"500mg","period":"8","posology":"1 comprimido a cada 8h","observation":"Não tomar com álcool","user_id":"uuid-aqui","start_date":"2025-06-26"}'></textarea>
+    <button onclick="sendRequest({
+      method:'POST',
+      endpoint:'/medicines',
+      body:safeJSON('medCreateBody'),
+      resultEl:el('medResult'),
+      highlightEndpoint:true
+    })">
+      Create
+    </button>
+  </div>
+
+  <!-- LISTAR POR user_id -->
+  <div class="row">
+    <button onclick="loadMedicines()">Get Medicines por User</button>
+  </div>
+
+  <!-- LISTAR TODOS (sem filtro) -->
+  <div class="row">
+    <button onclick="sendRequest({
+      method:'GET',
+      endpoint:'/medicines',
+      resultEl:el('medResult'),
+      highlightEndpoint:true
+    })">
+      Get All
+    </button>
+  </div>
+
+  <!-- AÇÕES POR ID SEM user_id -->
+  <div class="row">
+    <input id="medId" placeholder="medicine_id" />
+    <textarea id="medUpdateBody" rows="3" placeholder='Ex: {"dosage":"750mg"}'></textarea>
+
+    <button onclick="sendRequest({
+      method:'GET',
+      endpoint:`/medicines/${val('medId')}`,
+      resultEl:el('medResult'),
+      highlightEndpoint:true
+    })">
+      Get By ID (sem user_id)
+    </button>
+
+    <button onclick="sendRequest({
+      method:'PUT',
+      endpoint:`/medicines/${val('medId')}`,
+      body:safeJSON('medUpdateBody'),
+      resultEl:el('medResult'),
+      highlightEndpoint:true
+    })">
+      Update (sem user_id)
+    </button>
+
+    <button onclick="sendRequest({
+      method:'DELETE',
+      endpoint:`/medicines/${val('medId')}`,
+      resultEl:el('medResult'),
+      highlightEndpoint:true
+    })">
+      Delete (sem user_id)
+    </button>
+  </div>
+
+  <h4>JSON do backend</h4>
+  <pre id="medResult">Resposta…</pre>
+
+  <h4>Horários calculados</h4>
+  <pre id="medHorariosResult">Nenhum cálculo…</pre>
+</section>
+
+<!-- =============== APPOINTMENTS =============== -->
+<section>
+  <h2>Appointments</h2>
+
+  <!-- CREATE -->
+  <div class="row">
+    <textarea id="apptCreateBody" rows="3" placeholder='Ex: {"title":"Consulta","date":"2025-06-30","user_id":"uuid-aqui"}'></textarea>
+    <button onclick="sendRequest({
+      method:'POST',
+      endpoint:'/appointments',
+      body:safeJSON('apptCreateBody'),
+      resultEl:el('apptResult'),
+      highlightEndpoint:true
+    })">
+      Create
+    </button>
+  </div>
+
+  <!-- LISTAR POR user_id -->
+  <div class="row">
+    <button onclick="loadAppointments()">Get Appointments por User</button>
+  </div>
+
+  <!-- LISTAR TODOS -->
+  <div class="row">
+    <button onclick="sendRequest({
+      method:'GET',
+      endpoint:'/appointments',
+      resultEl:el('apptResult'),
+      highlightEndpoint:true
+    })">
+      Get All
+    </button>
+  </div>
+
+  <!-- AÇÕES POR ID SEM user_id -->
+  <div class="row">
+    <input id="apptId" placeholder="appointment_id" />
+    <textarea id="apptUpdateBody" rows="3" placeholder='Ex: {"title":"Nova Consulta"}'></textarea>
+
+    <button onclick="sendRequest({
+      method:'GET',
+      endpoint:`/appointments/${val('apptId')}`,
+      resultEl:el('apptResult'),
+      highlightEndpoint:true
+    })">
+      Get By ID (sem user_id)
+    </button>
+
+    <button onclick="sendRequest({
+      method:'PUT',
+      endpoint:`/appointments/${val('apptId')}`,
+      body:safeJSON('apptUpdateBody'),
+      resultEl:el('apptResult'),
+      highlightEndpoint:true
+    })">
+      Update (sem user_id)
+    </button>
+
+    <button onclick="sendRequest({
+      method:'DELETE',
+      endpoint:`/appointments/${val('apptId')}`,
+      resultEl:el('apptResult'),
+      highlightEndpoint:true
+    })">
+      Delete (sem user_id)
+    </button>
+  </div>
+
+  <pre id="apptResult">Resposta…</pre>
+</section>
+
+<script>
+  const BASE_URL = "http://localhost:3000/api";
+  const el  = id => document.getElementById(id);
+  const val = id => el(id).value.trim();
+
+  function safeJSON(id){
+    try{ return JSON.parse(el(id).value||'{}'); }
+    catch(e){ alert('JSON inválido em '+id); throw e; }
+  }
+
+  async function sendRequest({method, endpoint, body, resultEl, highlightEndpoint}) {
+    try {
+      if(highlightEndpoint) {
+        resultEl.textContent = `Chamando endpoint: \n\n${BASE_URL}${endpoint}\n\nResposta:\n`;
+      } else {
+        resultEl.textContent = '';
+      }
+
+      const opts = {method, headers: {'Content-Type':'application/json'}};
+      if(body) opts.body = JSON.stringify(body);
+
+      const r = await fetch(BASE_URL + endpoint, opts);
+      const j = await r.json();
+
+      resultEl.textContent += JSON.stringify(j, null, 2);
+
+      return j;
+    } catch(e) {
+      resultEl.textContent = 'Erro: ' + e.message;
+    }
+  }
+
+  async function loadMedicines(){
+    const uid = val('filterUserId');
+    if(!uid) {
+      alert('Informe user_id');
+      return;
+    }
+    const endpoint = `/medicines?user_id=${uid}`;
+    const data = await sendRequest({
+      method: 'GET',
+      endpoint,
+      resultEl: el('medResult'),
+      highlightEndpoint: true
+    });
+    if(!data) return;
+
+    const doses = data.flatMap(m => {
+      const h = parseInt(m.period) || 6;
+      const start = new Date(m.start_date || Date.now());
+      const end = new Date(m.end_date || (Date.now() + 7*24*3600*1000));
+      const list = [];
+      for(let t = new Date(start); t <= end; t = new Date(t.getTime() + h*3600000)) {
+        list.push({medicine_name: m.medicine_name, dosage: m.dosage, horario: new Date(t)});
+      }
+      return list;
+    })
+    .sort((a,b) => a.horario - b.horario)
+    .map(d => ({...d, horario: d.horario.toLocaleString('pt-BR')}));
+
+    el('medHorariosResult').textContent = JSON.stringify(doses,null,2);
+  }
+
+  async function loadAppointments(){
+    const uid = val('filterUserId');
+    if(!uid) {
+      alert('Informe user_id');
+      return;
+    }
+    const endpoint = `/appointments?user_id=${uid}`;
+    await sendRequest({
+      method: 'GET',
+      endpoint,
+      resultEl: el('apptResult'),
+      highlightEndpoint: true
+    });
+  }
+</script>
+
+</body>
+</html>
