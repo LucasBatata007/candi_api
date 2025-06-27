@@ -16,7 +16,7 @@ async function getAllAppointments(req, res) {
 
 async function getAppointmentsByUser(req, res) {
   try {
-    const { user_id } = req.params;               // /user/:user_id
+    const { user_id } = req.params;               
     const appts = await Appointment.find({ user_id }).sort({ date: 1 });
     return res.json(appts);
   } catch (err) {
@@ -37,7 +37,6 @@ async function getAppointmentById(req, res) {
   }
 }
 
-// UPDATE appointment by id + user_id query
 async function updateAppointment(req, res) {
   const userId = req.query.user_id;
   if (!userId) return res.status(400).json({ error: "user_id é obrigatório" });
@@ -55,7 +54,6 @@ async function updateAppointment(req, res) {
   }
 }
 
-// DELETE appointment by id + user_id query
 async function deleteAppointment(req, res) {
   const userId = req.query.user_id;
   if (!userId) return res.status(400).json({ error: "user_id é obrigatório" });
