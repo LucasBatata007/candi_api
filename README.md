@@ -67,6 +67,21 @@ Banco de dados NoSQL utilizado para armazenar dados dos usuários, medicamentos 
 
 ---
 
+## 🛠️ Como rodar o projeto
+
+1. Clone o repositório:
+   <pre><code>git clone https://github.com/LucasBatata007/candi_api</code></pre>
+
+2. Instale as dependências:
+   <pre><code>npm install</code></pre>
+
+3. Configure o `.env` com as variáveis de ambiente (Mongo URI, porta etc.)
+
+4. Inicie o servidor:
+   <pre><code>node server js</code></pre>
+
+---
+
 ## 📚 Estrutura da API
 
 A API está dividida nos seguintes recursos principais:
