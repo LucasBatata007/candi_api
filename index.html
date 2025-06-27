@@ -24,6 +24,27 @@
   <div class="row">
     <input id="filterUserId" placeholder="user_id (UUID) para listagens" />
   </div>
+
+
+<!-- =============== PROFILE ================= -->
+<section>
+  <h2>Profile</h2>
+  <div class="row">
+    <textarea id="profileBody" rows="4" placeholder="JSON para criar perfil"></textarea>
+    <button onclick="sendRequest({
+      method:'POST',
+      endpoint:'/profiles',
+      body:safeJSON('profileBody'),
+      resultEl:el('profileResult'),
+      highlightEndpoint:true
+    })">
+      Criar Profile
+    </button>
+  </div>
+  <pre id="profileResult">Resposta…</pre>
+</section>
+
+
 </section>
 
 <!-- =============== MEDICINES =============== -->
@@ -66,33 +87,35 @@
     <input id="medId" placeholder="medicine_id" />
     <textarea id="medUpdateBody" rows="3" placeholder='Ex: {"dosage":"750mg"}'></textarea>
 
-    <button onclick="sendRequest({
-      method:'GET',
-      endpoint:`/medicines/${val('medId')}`,
-      resultEl:el('medResult'),
-      highlightEndpoint:true
-    })">
-      Get By ID (sem user_id)
-    </button>
+   <button onclick="sendRequest({
+  method:'GET',
+  endpoint:`/medicines/${val('medId')}?user_id=${val('filterUserId')}`,
+  resultEl:el('medResult'),
+  highlightEndpoint:true
+})">
+  Get By ID
+</button>
 
-    <button onclick="sendRequest({
-      method:'PUT',
-      endpoint:`/medicines/${val('medId')}`,
-      body:safeJSON('medUpdateBody'),
-      resultEl:el('medResult'),
-      highlightEndpoint:true
-    })">
-      Update (sem user_id)
-    </button>
+<button onclick="sendRequest({
+  method:'PUT',
+  endpoint:`/medicines/${val('medId')}?user_id=${val('filterUserId')}`,
+  body:safeJSON('medUpdateBody'),
+  resultEl:el('medResult'),
+  highlightEndpoint:true
+})">
+  Update
+</button>
 
-    <button onclick="sendRequest({
-      method:'DELETE',
-      endpoint:`/medicines/${val('medId')}`,
-      resultEl:el('medResult'),
-      highlightEndpoint:true
-    })">
-      Delete (sem user_id)
-    </button>
+
+  <button onclick="sendRequest({
+  method:'DELETE',
+  endpoint:`/medicines/${val('medId')}?user_id=${val('filterUserId')}`,
+  resultEl:el('medResult'),
+  highlightEndpoint:true
+})">
+  Delete
+</button>
+
   </div>
 
   <h4>JSON do backend</h4>
@@ -142,33 +165,35 @@
     <input id="apptId" placeholder="appointment_id" />
     <textarea id="apptUpdateBody" rows="3" placeholder='Ex: {"title":"Nova Consulta"}'></textarea>
 
-    <button onclick="sendRequest({
-      method:'GET',
-      endpoint:`/appointments/${val('apptId')}`,
-      resultEl:el('apptResult'),
-      highlightEndpoint:true
-    })">
-      Get By ID (sem user_id)
-    </button>
+  <button onclick="sendRequest({
+  method:'GET',
+  endpoint:`/appointments/${val('apptId')}?user_id=${val('filterUserId')}`,
+  resultEl:el('apptResult'),
+  highlightEndpoint:true
+})">
+  Get By ID
+</button>
 
-    <button onclick="sendRequest({
-      method:'PUT',
-      endpoint:`/appointments/${val('apptId')}`,
-      body:safeJSON('apptUpdateBody'),
-      resultEl:el('apptResult'),
-      highlightEndpoint:true
-    })">
-      Update (sem user_id)
-    </button>
+<button onclick="sendRequest({
+  method:'PUT',
+  endpoint:`/appointments/${val('apptId')}?user_id=${val('filterUserId')}`,
+  body:safeJSON('apptUpdateBody'),
+  resultEl:el('apptResult'),
+  highlightEndpoint:true
+})">
+  Update
+</button>
 
-    <button onclick="sendRequest({
-      method:'DELETE',
-      endpoint:`/appointments/${val('apptId')}`,
-      resultEl:el('apptResult'),
-      highlightEndpoint:true
-    })">
-      Delete (sem user_id)
-    </button>
+
+  <button onclick="sendRequest({
+  method:'DELETE',
+  endpoint:`/appointments/${val('apptId')}?user_id=${val('filterUserId')}`,
+  resultEl:el('apptResult'),
+  highlightEndpoint:true
+})">
+  Delete
+</button>
+
   </div>
 
   <pre id="apptResult">Resposta…</pre>
@@ -212,7 +237,7 @@
       alert('Informe user_id');
       return;
     }
-    const endpoint = `/medicines?user_id=${uid}`;
+    const endpoint = `/medicines/user/${uid}`;
     const data = await sendRequest({
       method: 'GET',
       endpoint,
@@ -243,7 +268,7 @@
       alert('Informe user_id');
       return;
     }
-    const endpoint = `/appointments?user_id=${uid}`;
+    const endpoint = `/appointments/user/${uid}`;
     await sendRequest({
       method: 'GET',
       endpoint,

@@ -6,8 +6,8 @@ const app = express();
 
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true); // permite Postman e requests sem origin
-    callback(null, origin); // aceita qualquer origem
+    if (!origin) return callback(null, true); 
+    callback(null, origin); 
   },
   credentials: true,
   methods: ['GET','POST','PUT','DELETE','OPTIONS'],
@@ -18,7 +18,6 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use('/api/profiles',     require('./routes/profileRoutes'));
-
 
 
 app.use('/api/medicines',    require('./routes/medicineRoutes'));
